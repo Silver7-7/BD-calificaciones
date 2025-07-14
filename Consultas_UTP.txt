@@ -1,0 +1,175 @@
+```sql
+USE calificaciones_utp;
+
+-- BASIC QUERIES (Simple SELECTs, basic filtering, and single-table queries)
+
+-- 1. List all students with their names and student codes
+-- Purpose: Retrieve basic information about all students registered in the system
+SELECT p.nombre, p.apellido, e.codigo_estudiante
+FROM Persona p
+JOIN Estudiante e ON p.persona_id = e.persona_id
+WHERE p.tipo = 'Estudiante';
+
+-- 2. List all professors with their specialties
+-- Purpose: Display all professors and their areas of expertise
+SELECT p.nombre, p.apellido, pr.codigo_profesor, pr.especialidad
+FROM Persona p
+JOIN Profesor pr ON p.persona_id = pr.persona_id
+WHERE p.tipo = 'Profesor';
+
+-- 3. Show all available courses in the 2024-1 period
+-- Purpose: List courses offered in a specific academic period
+SELECT a.nombre AS asignatura, c.dias_semana, c.hora_inicio, c.hora_fin
+FROM Curso c
+JOIN Asignatura a ON c.asignatura_id = a.asignatura_id
+JOIN Periodo p ON c.periodo_id = p.periodo_id
+WHERE p.nombre = '2024-1';
+
+-- 4. List all classrooms with their capacity and resources
+-- Purpose: Provide an overview of available classrooms and their facilities
+SELECT codigo_salon, edificio, capacidad, recursos
+FROM Salon;
+
+-- 5. Show all subjects with their credits
+-- Purpose: Display all academic subjects and their respective credit values
+SELECT codigo_asignatura, nombre, creditos
+FROM Asignatura;
+
+-- 6. List students enrolled in a specific course (e.g., Cálculo I, curso_id = 1)
+-- Purpose: Identify students enrolled in a particular course
+SELECT p.nombre, p.apellido, e.codigo_estudiante
+FROM Inscripcion i
+JOIN Estudiante e ON i.estudiante_id = e.estudiante_id
+JOIN Persona p ON e.persona_id = p.persona_id
+WHERE i.curso_id = 1;
+
+-- 7. List all evaluations for a specific course (e.g., Bases de Datos, curso_id = 3)
+-- Purpose: Show all assessments scheduled for a specific course
+SELECT tipo, nombre, peso, fecha
+FROM Evaluacion
+WHERE curso_id = 3;
+
+-- 8. Show all grades for a specific student (e.g., María García, estudiante_id = 1)
+-- Purpose: Retrieve all grades recorded for a specific student
+SELECT a.nombre AS asignatura, e.nombre AS evaluacion, c.nota
+FROM Calificacion c
+JOIN Inscripcion i ON c.inscripcion_id = i.inscripcion_id
+JOIN Evaluacion e ON c.evaluacion_id = e.evaluacion_id
+JOIN Curso cu ON i.curso_id = cu.curso_id
+JOIN Asignatura a ON cu.asignatura_id = a.asignatura_id
+WHERE i.estudiante_id = 1;
+
+-- 9. List professors teaching in a specific period (e.g., 2024-1)
+-- Purpose: Identify which professors are assigned to courses in a given period
+SELECT DISTINCT p.nombre, p.apellido, pr.codigo_profesor
+FROM Curso_Profesor cp
+JOIN Profesor pr ON cp.profesor_id = pr.profesor_id
+JOIN Persona p ON pr.persona_id = p.persona_id
+JOIN Curso c ON cp.curso_id = c.curso_id
+JOIN Periodo pe ON c.periodo_id = pe.periodo_id
+WHERE pe.nombre = '2024-1';
+
+-- 10. Show the schedule of a specific classroom (e.g., A301, salon_id = 1)
+-- Purpose: Display the schedule of courses held in a specific classroom
+SELECT a.nombre AS asignatura, c.dias_semana, c.hora_inicio, c.hora_fin
+FROM Curso c
+JOIN Asignatura a ON c.asignatura_id = a.asignatura_id
+WHERE c.salon_id = 1;
+
+-- INTERMEDIATE QUERIES (Joins, aggregations, and moderate filtering)
+
+-- 11. Count the number of students enrolled in each course
+-- Purpose: Provide a summary of enrollment numbers per course
+SELECT a.nombre AS asignatura, COUNT(i.estudiante_id) AS total_estudiantes
+FROM Inscripcion i
+JOIN Curso c ON i.curso_id = c.curso_id
+JOIN Asignatura a ON c.asignatura_id = a.asignatura_id
+GROUP BY a.nombre;
+
+-- 12. List courses with their assigned professors (Titular only)
+-- Purpose: Show courses and their primary (Titular) professors
+SELECT a.nombre AS asignatura, p.nombre, p.apellido
+FROM Curso_Profesor cp
+JOIN Curso c ON cp.curso_id = c.curso_id
+JOIN Asignatura a ON c.asignatura_id = a.asignatura_id
+JOIN Profesor pr ON cp.profesor_id = pr.profesor_id
+JOIN Persona p ON pr.persona_id = p.persona_id
+WHERE cp.tipo_responsable = 'Titular';
+
+-- 13. Calculate the total credits a student is enrolled in (e.g., estudiante_id = 1)
+-- Purpose: Sum the credits of all courses a specific student is taking
+SELECT p.nombre p.apellido, SUM(a.creditos) AS total_creditos
+FROM Inscripcion i
+JOIN Curso c ON i.curso_id = c.curso_id
+JOIN Asignatura a ON c.asignatura_id = a.asignatura_id
+JOIN Estudiante e ON i.estudiante_id = e.estudiante_id
+JOIN Persona p ON e.persona_id = p.persona_id
+WHERE i.estudiante_id = 1;
+
+-- 14. List evaluations with weights greater than 0.3
+-- Purpose: Identify high-weighted evaluations across all courses
+SELECT a.nombre AS asignatura, e.nombre AS evaluacion, e.peso
+FROM Evaluacion e
+JOIN Curso c ON e.curso_id = c.curso_id
+JOIN Asignatura a ON c.asignatura_id = a.asignatura_id
+WHERE e.peso > 0.3;
+
+-- 15. Show students with grades above 15 in any evaluation
+-- Purpose: Identify high-performing students based on individual evaluation scores
+SELECT DISTINCT p.nombre, p.apellido, c.nota, e.nombre AS evaluacion
+FROM Calificacion c
+JOIN Inscripcion i ON c.inscripcion_id = i.inscripcion_id
+JOIN Estudiante es ON i.estudiante_id = es.estudiante_id
+JOIN Persona p ON es.persona_id = p.persona_id
+JOIN Evaluacion e ON c.evaluacion_id = e.evaluacion_id
+WHERE c.nota > 15;
+
+-- 16. List courses taught in a specific building (e.g., Edificio A)
+-- Purpose: Find all courses scheduled in a specific building
+SELECT a.nombre AS asignatura, s.codigo_salon, s.edificio
+FROM Curso c
+JOIN Asignatura a ON c.asignatura_id = a.asignatura_id
+JOIN Salon s ON c.salon_id = s.salon_id
+WHERE s.edificio = 'Edificio A';
+
+-- 17. Show the number of evaluations per course
+-- Purpose: Count how many evaluations are scheduled for each course
+SELECT a.nombre AS asignatura, COUNT(e.evaluacion_id) AS total_evaluaciones
+FROM Evaluacion e
+JOIN Curso c ON e.curso_id = c.curso_id
+JOIN Asignatura a ON c.asignatura_id = a.asignatura_id
+GROUP BY a.nombre;
+
+-- 18. List students enrolled in more than one course
+-- Purpose: Identify students taking multiple courses
+SELECT p.nombre, p.apellido, COUNT(i.curso_id) AS total_cursos
+FROM Inscripcion i
+JOIN Estudiante e ON i.estudiante_id = e.estudiante_id
+JOIN Persona p ON e.persona_id = p.persona_id
+GROUP BY p.nombre, p.apellido
+HAVING COUNT(i.curso_id) > 1;
+
+-- 19. Show professors teaching multiple subjects
+-- Purpose: Identify professors assigned to more than one subject
+SELECT p.nombre, p.apellido, COUNT(pa.asignatura_id) AS total_asignaturas
+FROM ProfesorAsignatura pa
+JOIN Profesor pr ON pa.profesor_id = pr.profesor_id
+JOIN Persona p ON pr.persona_id = p.persona_id
+GROUP BY p.nombre, p.apellido
+HAVING COUNT(pa.asignatura_id) > 1;
+
+-- 20. List courses with their classroom capacity
+-- Purpose: Show course details along with the capacity of the assigned classroom
+SELECT a.nombre AS asignatura, s.codigo_salon, s.capacidad
+FROM Curso c
+JOIN Asignatura a ON c.asignatura_id = a.asignatura_id
+JOIN Salon s ON c.salon_id = s.salon_id;
+
+-- ADVANCED QUERIES (Complex joins, subqueries, aggregations, and functions)
+
+-- 21. Use the function to calculate the average grade of a student in a specific course
+-- Purpose: Utilize CalcularPromedioEstudianteCurso to get María's average in Cálculo I
+SELECT p.nombre, p.apellido, a.nombre AS asignatura,
+       CalcularPromedioEstudianteCurso(e.estudiante_id, c.curso_id) AS promedio
+FROM Estudiante e
+JOIN Persona p ON e.persona_id = p.person
