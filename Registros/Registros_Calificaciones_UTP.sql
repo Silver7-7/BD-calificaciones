@@ -51,6 +51,8 @@ INSERT INTO Periodo (nombre, fecha_inicio, fecha_fin) VALUES
 -- 7. Relaciones Profesor-Asignatura (nueva tabla)
 INSERT INTO ProfesorAsignatura (profesor_id, asignatura_id) VALUES
 (1, 1), -- Roberto Vargas puede enseñar Cálculo I
+(1, 3), -- Roberto Vargas puede enseñar Bases de Datos
+(2, 1), -- Elena Morales puede enseñar Cálculo I
 (2, 2), -- Elena Morales puede enseñar Programación II
 (2, 5), -- Elena Morales puede enseñar Estadística
 (3, 3), -- Miguel Díaz puede enseñar Bases de Datos
