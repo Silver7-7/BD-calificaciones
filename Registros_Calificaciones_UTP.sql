@@ -93,13 +93,15 @@ INSERT INTO Evaluacion (curso_id, tipo, nombre, peso, fecha, hora_inicio, hora_f
 (3, 'Final', 'Examen Final', 0.5, '2024-07-05', '10:00:00', '13:00:00');
 
 -- 12. Calificaciones (1 nota por evaluación inscrita)
-INSERT INTO Calificacion (inscripcion_id, evaluacion_id, nota) VALUES
+INSERT INTO calificacion (inscripcion_id, evaluacion_id, tipo, nota, es_definitiva) VALUES
 -- María (Cálculo I)
-(1, 1, 15.5), -- Parcial 1
-(1, 2, 18.0), -- Examen Final
+(1, 1, 'Parcial', 15.5, TRUE),  -- Parcial 1 (definitiva)
+(1, 2, 'Final', 18.0, TRUE),     -- Examen Final (definitiva)
+
 -- Carlos (Programación II)
-(2, 3, 17.0), -- Proyecto 1
-(2, 4, 16.5), -- Laboratorio 2
+(2, 3, 'Trabajo', 17.0, TRUE),   -- Proyecto 1 (definitiva)
+(2, 4, 'Práctica', 16.5, TRUE),  -- Laboratorio 2 (definitiva)
+
 -- Lucía (Bases de Datos)
-(3, 5, 14.0), -- Parcial 1
-(3, 6, 15.5); -- Examen Final
+(3, 5, 'Parcial', 14.0, TRUE),   -- Parcial 1 (definitiva)
+(3, 6, 'Final', 15.5, TRUE);     -- Examen Final (definitiva)
