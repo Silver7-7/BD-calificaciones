@@ -83,7 +83,25 @@ BEGIN
 END //
 DELIMITER ;
 
--- 4. Validar que un profesor solo dicte asignaturas de su especialidad
+-- 4. Actualiza la nota final luego de añadir una calificacion
+DELIMITER //
+CREATE TRIGGER actualizar_nota_final_despues_calificacion
+AFTER INSERT ON Calificacion
+FOR EACH ROW
+BEGIN
+    DECLARE v_curso_id INT;
+    
+    -- Obtener el curso relacionado
+    SELECT i.curso_id INTO v_curso_id
+    FROM Inscripcion i
+    WHERE i.inscripcion_id = NEW.inscripcion_id;
+    
+    -- Actualizar todas las notas finales del curso
+    CALL ActualizarNotasFinalesCurso(v_curso_id);
+END //
+DELIMITER ;
+
+-- 5. Validar que un profesor solo dicte asignaturas de su especialidad
 DELIMITER //
 CREATE TRIGGER validar_profesor_asignatura
 BEFORE INSERT ON Curso_Profesor
@@ -104,7 +122,7 @@ BEGIN
 END //
 DELIMITER ;
 
--- 5. Validar horarios de salones para evitar conflictos
+-- 6. Validar horarios de salones para evitar conflictos
 DELIMITER //
 CREATE TRIGGER validar_horario_salon
 BEFORE INSERT ON Curso
