@@ -13,15 +13,15 @@ INSERT INTO Persona (tipo, nombre, apellido, dni, fecha_nacimiento, correo) VALU
 ('Profesor', 'Elena', 'Morales', '22334455', '1975-04-25', 'elena.morales@utp.ac.pa'),
 ('Profesor', 'Miguel', 'Díaz', '33445566', '1982-12-05', 'miguel.diaz@utp.ac.pa');
 
--- 2. Estudiantes
-INSERT INTO Estudiante (persona_id, codigo_estudiante, fecha_ingreso) VALUES
-(1, 'E2024001', '2024-03-01'),
-(2, 'E2024002', '2024-03-01'),
-(3, 'E2024003', '2024-03-01'),
-(4, 'E2024004', '2024-03-01'),
-(5, 'E2024005', '2024-03-01');
+-- 2. Estudiantes (con columna fecha_graduacion añadida)
+INSERT INTO Estudiante (persona_id, codigo_estudiante, fecha_ingreso, fecha_graduacion) VALUES
+(1, 'E2024001', '2024-03-01', NULL),
+(2, 'E2024002', '2024-03-01', NULL),
+(3, 'E2024003', '2024-03-01', NULL),
+(4, 'E2024004', '2024-03-01', NULL),
+(5, 'E2024005', '2024-03-01', NULL);
 
--- 3. Profesores
+-- 3. Profesores (se mantiene igual)
 INSERT INTO Profesor (persona_id, codigo_profesor, especialidad) VALUES
 (6, 'P2024001', 'Matemáticas Avanzadas'),
 (7, 'P2024002', 'Programación y Algoritmos'),
