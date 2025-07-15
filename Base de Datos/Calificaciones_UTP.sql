@@ -7,7 +7,7 @@ USE calificaciones_utp;
 -- Tabla Persona (base para estudiantes y profesores)
 CREATE TABLE Persona (
     persona_id INT PRIMARY KEY AUTO_INCREMENT,
-    tipo ENUM('Estudiante', 'Profesor') NOT NULL,
+    tipo ENUM('Estudiante', 'Profesor', 'Estudiante,Profesor') NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     dni VARCHAR(20) UNIQUE NOT NULL,
@@ -24,6 +24,7 @@ CREATE TABLE Estudiante (
     persona_id INT UNIQUE NOT NULL,
     codigo_estudiante VARCHAR(20) UNIQUE NOT NULL,
     fecha_ingreso DATE NOT NULL,
+    fecha_graduacion DATE NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (persona_id) REFERENCES Persona(persona_id)
