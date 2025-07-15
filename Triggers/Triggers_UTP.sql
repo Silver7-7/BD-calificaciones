@@ -1,66 +1,56 @@
--- 1. Validar el tipo de Persona (Estudiante o Profesor)
+-- 1. Validar el tipo de Persona al insertar Estudiante
 DELIMITER //
-CREATE TRIGGER validar_tipo_persona
+CREATE TRIGGER validar_tipo_persona_estudiante
 BEFORE INSERT ON Estudiante
 FOR EACH ROW
 BEGIN
-    DECLARE tipo_persona ENUM('Estudiante', 'Profesor');
+    DECLARE tipo_persona VARCHAR(20);
     
-    -- Verificar el tipo en la tabla Persona
     SELECT tipo INTO tipo_persona FROM Persona WHERE persona_id = NEW.persona_id;
     
-    -- Validar que corresponda
-    IF tipo_persona != 'Estudiante' THEN
+    IF tipo_persona = 'Profesor' THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La persona referenciada no está marcada como Estudiante';
+        SET MESSAGE_TEXT = 'Un profesor no puede ser registrado como estudiante';
     END IF;
 END //
+DELIMITER ;
 
-CREATE TRIGGER validar_tipo_profesor
+-- 2. Validar estudiante no graduado al insertar Profesor
+DELIMITER //
+CREATE TRIGGER validar_estudiante_para_profesor
 BEFORE INSERT ON Profesor
 FOR EACH ROW
 BEGIN
-    DECLARE tipo_persona ENUM('Estudiante', 'Profesor');
+    DECLARE es_estudiante_activo INT;
     
-    -- Verificar el tipo en la tabla Persona
-    SELECT tipo INTO tipo_persona FROM Persona WHERE persona_id = NEW.persona_id;
+    SELECT COUNT(*) INTO es_estudiante_activo
+    FROM Estudiante 
+    WHERE persona_id = NEW.persona_id 
+    AND fecha_graduacion IS NULL;
     
-    -- Validar que corresponda
-    IF tipo_persona != 'Profesor' THEN
+    IF es_estudiante_activo > 0 THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La persona referenciada no está marcada como Profesor';
+        SET MESSAGE_TEXT = 'La persona es estudiante activo. Debe graduarse primero.';
     END IF;
 END //
 DELIMITER ;
 
--- 2. Evita los cambios de tipo en Persona
+-- 3. Actualizar tipo de Persona al insertar Profesor
 DELIMITER //
-CREATE TRIGGER evitar_cambio_tipo_persona
-BEFORE UPDATE ON Persona
+CREATE TRIGGER actualizar_tipo_persona_profesor
+AFTER INSERT ON Profesor
 FOR EACH ROW
 BEGIN
-    DECLARE existe_estudiante INT;
-    DECLARE existe_profesor INT;
-    
-    -- Solo validar si se cambia el tipo
-    IF NEW.tipo != OLD.tipo THEN
-        -- Verificar si existe como estudiante
-        SELECT COUNT(*) INTO existe_estudiante FROM Estudiante WHERE persona_id = OLD.persona_id;
-        
-        -- Verificar si existe como profesor
-        SELECT COUNT(*) INTO existe_profesor FROM Profesor WHERE persona_id = OLD.persona_id;
-        
-        -- Validar coherencia
-        IF (OLD.tipo = 'Estudiante' AND existe_estudiante > 0) OR 
-           (OLD.tipo = 'Profesor' AND existe_profesor > 0) THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'No se puede cambiar el tipo de persona porque ya existe registro como estudiante/profesor';
-        END IF;
-    END IF;
+    UPDATE Persona 
+    SET tipo = CASE 
+        WHEN tipo = 'Estudiante' THEN 'Estudiante,Profesor'
+        ELSE 'Profesor'
+    END
+    WHERE persona_id = NEW.persona_id;
 END //
 DELIMITER ;
 
--- 3. Evita la eliminación si existe referencia entre Persona y Estudiante o Profesor
+-- 4. Evitar eliminación de Persona con referencias
 DELIMITER //
 CREATE TRIGGER prevenir_eliminacion_persona
 BEFORE DELETE ON Persona
@@ -69,13 +59,9 @@ BEGIN
     DECLARE existe_estudiante INT;
     DECLARE existe_profesor INT;
     
-    -- Verificar si existe como estudiante
     SELECT COUNT(*) INTO existe_estudiante FROM Estudiante WHERE persona_id = OLD.persona_id;
-    
-    -- Verificar si existe como profesor
     SELECT COUNT(*) INTO existe_profesor FROM Profesor WHERE persona_id = OLD.persona_id;
     
-    -- Prevenir eliminación si hay registros relacionados
     IF existe_estudiante > 0 OR existe_profesor > 0 THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'No se puede eliminar la persona porque tiene registros como estudiante o profesor';
@@ -83,7 +69,7 @@ BEGIN
 END //
 DELIMITER ;
 
--- 4. Actualiza la nota final luego de añadir una calificacion
+-- 5. Actualiza la nota final luego de añadir una calificacion
 DELIMITER //
 CREATE TRIGGER actualizar_nota_final_despues_calificacion
 AFTER INSERT ON Calificacion
@@ -101,7 +87,7 @@ BEGIN
 END //
 DELIMITER ;
 
--- 5. Validar que un profesor solo dicte asignaturas de su especialidad
+-- 6. Validar que un profesor solo dicte asignaturas de su especialidad
 DELIMITER //
 CREATE TRIGGER validar_profesor_asignatura
 BEFORE INSERT ON Curso_Profesor
@@ -122,7 +108,7 @@ BEGIN
 END //
 DELIMITER ;
 
--- 6. Validar horarios de salones para evitar conflictos
+-- 7. Validar horarios de salones para evitar conflictos
 DELIMITER //
 CREATE TRIGGER validar_horario_salon
 BEFORE INSERT ON Curso
