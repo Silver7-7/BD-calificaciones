@@ -97,13 +97,14 @@ INSERT INTO Evaluacion (curso_id, tipo, nombre, peso, fecha, hora_inicio, hora_f
 -- 12. Calificaciones (1 nota por evaluación inscrita)
 INSERT INTO calificacion (inscripcion_id, evaluacion_id, tipo, nota, es_definitiva) VALUES
 -- María (Cálculo I)
-(1, 1, 'Parcial', 15.5, TRUE),  -- Parcial 1 (definitiva)
-(1, 2, 'Final', 18.0, TRUE),     -- Examen Final (definitiva)
+(1, 1, 'Parcial', 75 , TRUE),  -- Parcial 1 (definitiva)
+(1, 2, 'Final', 89, TRUE),     -- Examen Final (definitiva)
 
 -- Carlos (Programación II)
-(2, 3, 'Trabajo', 17.0, TRUE),   -- Proyecto 1 (definitiva)
-(2, 4, 'Práctica', 16.5, TRUE),  -- Laboratorio 2 (definitiva)
+(2, 3, 'Trabajo', 85, TRUE),   -- Proyecto 1 (definitiva)
+(2, 4, 'Práctica', 90, TRUE),  -- Laboratorio 2 (definitiva)
 
 -- Lucía (Bases de Datos)
-(3, 5, 'Parcial', 14.0, TRUE),   -- Parcial 1 (definitiva)
-(3, 6, 'Final', 15.5, TRUE);     -- Examen Final (definitiva)
+(3, 5, 'Parcial', 98, TRUE),   -- Parcial 1 (definitiva)
+(3, 6, 'Final', 87, TRUE);     -- Examen Final (definitiva)
+
