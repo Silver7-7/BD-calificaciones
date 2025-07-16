@@ -119,7 +119,7 @@ CREATE TABLE Curso_Profesor (
 -- Tabla Inscripción (matrículas de estudiantes)
 CREATE TABLE Inscripcion (
     inscripcion_id INT PRIMARY KEY AUTO_INCREMENT,
-    estudiante_id INT NOT NULL,
+    estudiante_id INT UNIQUE NOT NULL,
     curso_id INT NOT NULL,
     nota_final DECIMAL(5,2) CHECK (nota_final >= 0 AND nota_final <= 100),
     estado ENUM('Cursando', 'Aprobado', 'Desaprobado', 'Retirado') DEFAULT 'Cursando',
